@@ -1,0 +1,18 @@
+package dev.yakitori.barkforwarder.receiver
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import dev.yakitori.barkforwarder.domain.ForwardingScheduler
+
+class BootReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (
+            intent.action == Intent.ACTION_BOOT_COMPLETED ||
+            intent.action == Intent.ACTION_LOCKED_BOOT_COMPLETED
+        ) {
+            ForwardingScheduler.enqueueInstalledAppSync(context)
+        }
+    }
+}
+
