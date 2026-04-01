@@ -39,7 +39,7 @@ Configure the Bark iPhone app with:
 - Key: same 32-character key entered in the Android app
 - IV: same 12-character IV entered in the Android app
 
-![Bark encryption setup overview](docs/assets/bark-encryption-settings.png)
+<img src="docs/assets/bark-encryption-settings.png" alt="Bark encryption setup overview" width="590">
 
 The Android app sends `ciphertext` and `iv` in the same format as Bark's Node.js GCM example. You can paste `https://api.day.app/<your-key>` directly into the Android app, or paste the key by itself.
 
