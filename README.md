@@ -46,7 +46,7 @@ The Android app sends `ciphertext` and `iv` in the same format as Bark's Node.js
 ## Icons and Images
 
 - Bark `icon` and `image` require public URLs.
-- This app tries to resolve notification icons from the Play Store first.
+- This app tries to resolve notification icons from the Play Store Web first.
 - If Play resolution fails, you can set a manual icon URL per app.
 - Notification images are only forwarded when the original notification already exposes a public `http` or `https` URL.
 - If nothing public is available, the push is still sent without an icon.
