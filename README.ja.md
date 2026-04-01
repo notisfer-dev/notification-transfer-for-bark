@@ -46,7 +46,7 @@ Android アプリ側の `Bark URL or Key` には `https://api.day.app/<your-key>
 ## アイコンと画像
 
 - Bark の `icon` と `image` は公開 URL が前提です。
-- 通知アイコンはまず Play Store から解決を試みます。
+- 通知アイコンはまずPlay Store WebからアイコンのURLの取得を試みます。
 - Play から取得できない場合は、アプリごとに手動の icon URL を設定できます。
 - 通知画像は元通知の中に `http` または `https` の公開 URL がある場合だけ転送されます。
 - 公開 URL がなければ、アイコンや画像なしで本文だけ送信します。
