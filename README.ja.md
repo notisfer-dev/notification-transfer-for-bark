@@ -39,7 +39,7 @@ iPhone 側の Bark アプリでは次の値をそろえてください。
 - Key: Android アプリに入力したものと同じ 32 文字キー
 - IV: Android アプリに入力したものと同じ 12 文字 IV
 
-<img src="docs/assets/bark-encryption-settings.png" alt="Bark encryption setup overview" width="590">
+<img src="docs/assets/bark-encryption-settings.png" alt="Bark encryption setup overview" width="300">
 
 Android アプリ側の `Bark URL or Key` には `https://api.day.app/<your-key>` をそのまま貼り付けるか、デバイスキー単体を入力できます。送信形式は Bark の Node.js GCM サンプルと同じ `ciphertext` + `iv` です。
 
