@@ -1,3 +1,5 @@
+English | [日本語](README.ja.md)
+
 # Bark Forwarder
 
 Android app that forwards notifications, SMS, and call events to Bark with AES-256-GCM encrypted payloads.
