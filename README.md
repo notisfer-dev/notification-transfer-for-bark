@@ -75,9 +75,15 @@ Configure the Bark iPhone app with:
 - Key: same 32-character key entered in the Android app
 - IV: same 12-character IV entered in the Android app
 
-<img src="docs/assets/bark-encryption-settings.png" alt="Bark encryption setup overview" width="300">
+<p>
+  <a href="https://apps.apple.com/app/bark-custom-notifications/id1403753865">
+    <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="40">
+  </a>
+</p>
 
 The Android app sends `ciphertext` and `iv` in the same format as Bark's Node.js GCM example. You can paste `https://api.day.app/<your-key>` directly into the Android app, or paste the key by itself.
+
+Bark is a separate iOS app by Finb.
 
 ## Icons and Images
 
@@ -86,6 +92,7 @@ The Android app sends `ciphertext` and `iv` in the same format as Bark's Node.js
 - If Play resolution fails, you can set a manual icon URL per app.
 - Notification images are only forwarded when the original notification already exposes a public `http` or `https` URL.
 - If nothing public is available, the push is still sent without an icon.
+- This repository does not bundle Bark UI screenshots or app artwork.
 
 ## Duplicate Notification Timeout
 

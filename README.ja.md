@@ -75,9 +75,15 @@ iPhone 側の Bark アプリでは次の値をそろえてください。
 - Key: Android アプリに入力したものと同じ 32 文字キー
 - IV: Android アプリに入力したものと同じ 12 文字 IV
 
-<img src="docs/assets/bark-encryption-settings.png" alt="Bark encryption setup overview" width="300">
+<p>
+  <a href="https://apps.apple.com/app/bark-custom-notifications/id1403753865">
+    <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="40">
+  </a>
+</p>
 
 Android アプリ側の `Bark URL or Key` には `https://api.day.app/<your-key>` をそのまま貼り付けるか、デバイスキー単体を入力できます。送信形式は Bark の Node.js GCM サンプルと同じ `ciphertext` + `iv` です。
+
+Bark は Finb による別アプリです。
 
 ## アイコンと画像
 
@@ -86,6 +92,7 @@ Android アプリ側の `Bark URL or Key` には `https://api.day.app/<your-key>
 - Play から取得できない場合は、アプリごとに手動の icon URL を設定できます。
 - 通知画像は元通知の中に `http` または `https` の公開 URL がある場合だけ転送されます。
 - 公開 URL がなければ、アイコンや画像なしで本文だけ送信します。
+- このリポジトリには Bark のUIスクリーンショットやアプリアートワークを同梱しません。
 
 ## Duplicate Notification Timeout
 
