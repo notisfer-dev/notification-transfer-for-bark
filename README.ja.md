@@ -4,6 +4,31 @@
 
 Bark へ通知、SMS、通話イベントを AES-256-GCM で暗号化して転送する Android アプリです。
 
+## スクリーンショット
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/assets/app-setup.png" alt="Initial setup" width="220"><br>
+      <sub>Initial setup</sub>
+    </td>
+    <td align="center">
+      <img src="docs/assets/app-bark-settings.png" alt="Bark settings" width="220"><br>
+      <sub>Bark settings</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/assets/app-transfer-settings.png" alt="Transfer settings" width="220"><br>
+      <sub>Transfer settings</sub>
+    </td>
+    <td align="center">
+      <img src="docs/assets/app-excluded-apps.png" alt="Excluded apps" width="220"><br>
+      <sub>Excluded apps</sub>
+    </td>
+  </tr>
+</table>
+
 ## 機能
 
 - `https://api.day.app/push` への Bark 専用転送

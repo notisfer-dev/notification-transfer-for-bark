@@ -4,6 +4,31 @@ English | [日本語](README.ja.md)
 
 Android app that forwards notifications, SMS, and call events to Bark with AES-256-GCM encrypted payloads.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/assets/app-setup.png" alt="Initial setup" width="220"><br>
+      <sub>Initial setup</sub>
+    </td>
+    <td align="center">
+      <img src="docs/assets/app-bark-settings.png" alt="Bark settings" width="220"><br>
+      <sub>Bark settings</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/assets/app-transfer-settings.png" alt="Transfer settings" width="220"><br>
+      <sub>Transfer settings</sub>
+    </td>
+    <td align="center">
+      <img src="docs/assets/app-excluded-apps.png" alt="Excluded apps" width="220"><br>
+      <sub>Excluded apps</sub>
+    </td>
+  </tr>
+</table>
+
 ## Features
 
 - Bark-only forwarding to `https://api.day.app/push`
