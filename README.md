@@ -83,7 +83,7 @@ Configure the Bark iPhone app with:
 
 The Android app sends `ciphertext` and `iv` in the same format as Bark's Node.js GCM example. You can paste `https://api.day.app/<your-key>` directly into the Android app, or paste the key by itself.
 
-Bark is a separate iOS app by Finb.
+Bark is a separate iOS app by Finb. Special thanks to Bark and its developer Finb for building and sharing the iOS app that makes this workflow possible.
 
 ## Icons and Images
 

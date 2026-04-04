@@ -311,6 +311,20 @@ private fun BarkSettingsScreen(
     ) {
         Text("Bark settings", style = MaterialTheme.typography.headlineSmall)
         Text("Paste `https://api.day.app/<your-key>` or just the key. Encryption is fixed to AES256 / GCM / noPadding.")
+        OutlinedCard {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text("Thanks to Bark", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "Special thanks to Bark and its developer Finb for building and sharing the iOS app that makes this workflow possible.",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        }
         FixedSettingCard(title = "Algorithm", value = "AES256")
         FixedSettingCard(title = "Mode", value = "GCM")
         FixedSettingCard(title = "Padding", value = "noPadding")

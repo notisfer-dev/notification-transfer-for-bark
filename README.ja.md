@@ -83,7 +83,7 @@ iPhone 側の Bark アプリでは次の値をそろえてください。
 
 Android アプリ側の `Bark URL or Key` には `https://api.day.app/<your-key>` をそのまま貼り付けるか、デバイスキー単体を入力できます。送信形式は Bark の Node.js GCM サンプルと同じ `ciphertext` + `iv` です。
 
-Bark は Finb による別アプリです。
+Bark は Finb による別アプリです。このワークフローを実現できる優れた iOS アプリを開発・公開してくれている Bark と開発者の Finb に感謝します。
 
 ## アイコンと画像
 
