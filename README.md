@@ -29,6 +29,17 @@ gradle assembleDebug
 - Install `app/build/outputs/apk/debug/app-debug.apk` for local testing.
 - `app-release-unsigned.apk` is intentionally unsigned and will not install until you add your own signing config.
 
+## Notification Access Note for Sideloaded APKs
+
+If you installed the app from an external APK, Android may block notification access until you manually allow restricted settings first.
+
+1. Open the notification access prompt from inside the app.
+2. In the Settings app, open the `Notification Transfer` app details page.
+3. Open the top-right three-dot menu and allow restricted settings.
+4. Go back and enable notification access for the app.
+
+The wording can differ a little depending on your Android version or device vendor, but the flow is the same: allow restricted settings first, then turn on notification access.
+
 ## Bark Setup
 
 Configure the Bark iPhone app with:
