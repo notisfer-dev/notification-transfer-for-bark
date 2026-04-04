@@ -89,12 +89,35 @@ Configure the Bark iPhone app with:
 - IV: same 12-character IV entered in the Android app
 
 <p>
-  <a href="https://apps.apple.com/app/bark-custom-notifications/id1403753865">
-    <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="40">
-  </a>
+  <table>
+    <tr>
+      <td align="center" valign="top">
+        <a href="https://apps.apple.com/app/bark-custom-notifications/id1403753865">
+          <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/27/b3/7f/27b37f52-a029-c5ad-8675-fa0cfb935801/Placeholder.mill/400x400bb-75.jpg" alt="Bark app icon from the App Store listing" width="88">
+        </a>
+        <br>
+        <strong>Bark</strong>
+        <br>
+        <a href="https://apps.apple.com/app/bark-custom-notifications/id1403753865">
+          <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="40">
+        </a>
+        <br>
+        <sub>Bark GitHub repository</sub>
+        <br>
+        <a href="https://github.com/Finb/Bark">https://github.com/Finb/Bark</a>
+      </td>
+      <td align="center" valign="top">
+        <a href="https://apps.apple.com/app/bark-custom-notifications/id1403753865">
+          <img src="docs/assets/bark-app-store-qr.svg" alt="QR code that opens Bark on the App Store" width="140">
+        </a>
+        <br>
+        <sub>Scan the QR code to open Bark on the App Store.</sub>
+      </td>
+    </tr>
+  </table>
 </p>
 
-The Android app sends `ciphertext` and `iv` in the same format as Bark's Node.js GCM example. You can paste `https://api.day.app/<your-key>` directly into the Android app, or paste the key by itself.
+The Android app sends `ciphertext` and `iv` in the same format as Bark's Node.js GCM example. You can paste `https://api.day.app/<your-key>` directly into the Android app, or paste the key by itself. You can also scan the QR code above to open Bark on the App Store.
 
 Bark is a separate iOS app by Finb. Special thanks to Bark and its developer Finb for building and sharing the iOS app that makes this workflow possible.
 

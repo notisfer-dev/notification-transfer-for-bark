@@ -89,12 +89,35 @@ iPhone 側の Bark アプリでは次の値をそろえてください。
 - IV: Android アプリに入力したものと同じ 12 文字 IV
 
 <p>
-  <a href="https://apps.apple.com/app/bark-custom-notifications/id1403753865">
-    <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="40">
-  </a>
+  <table>
+    <tr>
+      <td align="center" valign="top">
+        <a href="https://apps.apple.com/app/bark-custom-notifications/id1403753865">
+          <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/27/b3/7f/27b37f52-a029-c5ad-8675-fa0cfb935801/Placeholder.mill/400x400bb-75.jpg" alt="Bark app icon from the App Store listing" width="88">
+        </a>
+        <br>
+        <strong>Bark</strong>
+        <br>
+        <a href="https://apps.apple.com/app/bark-custom-notifications/id1403753865">
+          <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="40">
+        </a>
+        <br>
+        <sub>Bark の GitHub リポジトリ</sub>
+        <br>
+        <a href="https://github.com/Finb/Bark">https://github.com/Finb/Bark</a>
+      </td>
+      <td align="center" valign="top">
+        <a href="https://apps.apple.com/app/bark-custom-notifications/id1403753865">
+          <img src="docs/assets/bark-app-store-qr.svg" alt="QR code that opens Bark on the App Store" width="140">
+        </a>
+        <br>
+        <sub>QRコードを読み取ると App Store で Bark を開けます。</sub>
+      </td>
+    </tr>
+  </table>
 </p>
 
-Android アプリ側の `Bark URL or Key` には `https://api.day.app/<your-key>` をそのまま貼り付けるか、デバイスキー単体を入力できます。送信形式は Bark の Node.js GCM サンプルと同じ `ciphertext` + `iv` です。
+Android アプリ側の `Bark URL or Key` には `https://api.day.app/<your-key>` をそのまま貼り付けるか、デバイスキー単体を入力できます。送信形式は Bark の Node.js GCM サンプルと同じ `ciphertext` + `iv` です。上の QRコードを読み取ると App Store で Bark を開けます。
 
 Bark は Finb による別アプリです。このワークフローを実現できる優れた iOS アプリを開発・公開してくれている Bark と開発者の Finb に感謝します。
 
