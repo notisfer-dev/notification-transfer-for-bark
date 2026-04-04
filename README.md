@@ -49,9 +49,22 @@ gradle testDebugUnitTest
 gradle assembleDebug
 ```
 
+## Build on GitHub
+
+If you want to build the APK on GitHub instead of your local machine:
+
+1. Fork this repository to your own GitHub account.
+2. Open the `Actions` tab in your fork and enable workflows if GitHub asks.
+3. Open the `Android CI` workflow and click `Run workflow`.
+4. When the run finishes, download the `app-debug-apk` artifact.
+5. Install the APK from that artifact on your Android device.
+
+`app-debug-apk` is the main installable artifact for fork-based builds. `app-release-unsigned-apk` is also uploaded, but it is only an unsigned reference build and will not install until you add your own signing config.
+
 ## Install
 
 - Install `app/build/outputs/apk/debug/app-debug.apk` for local testing.
+- If you build on GitHub Actions, download and install the `app-debug-apk` artifact from your workflow run.
 - `app-release-unsigned.apk` is intentionally unsigned and will not install until you add your own signing config.
 
 ## Notification Access Note for Sideloaded APKs

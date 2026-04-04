@@ -10,33 +10,34 @@ on:
 
 jobs:
   build:
+    name: Build APK artifacts
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 17 for Android build
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Gradle
+      - name: Set up Gradle 8.10.2
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: "8.10.2"
 
-      - name: Run unit tests
+      - name: Run debug unit tests
         run: gradle testDebugUnitTest
 
-      - name: Build debug APK
+      - name: Build installable debug APK
         run: gradle assembleDebug
 
-      - name: Build release APK
+      - name: Build unsigned release APK
         run: gradle assembleRelease
 
-      - name: Upload debug APK artifact
+      - name: Upload installable debug APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
@@ -47,3 +48,14 @@ jobs:
         with:
           name: app-release-unsigned-apk
           path: app/build/outputs/apk/release/*.apk
+
+      - name: Write APK artifact summary
+        run: |
+          {
+            echo "## APK artifacts"
+            echo
+            echo "- \`app-debug-apk\`: installable debug APK for local testing and fork-based builds."
+            echo "- \`app-release-unsigned-apk\`: unsigned release APK reference artifact. Add your own signing config before using it for distribution."
+            echo
+            echo "Recommended fork workflow: fork this repository, enable Actions in your fork, run \`Android CI\` with \`Run workflow\`, then download \`app-debug-apk\` from the workflow artifacts."
+          } >> "$GITHUB_STEP_SUMMARY"

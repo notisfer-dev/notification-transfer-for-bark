@@ -49,9 +49,22 @@ gradle testDebugUnitTest
 gradle assembleDebug
 ```
 
+## GitHub Actions でビルド
+
+ローカル環境ではなく GitHub 上で APK を作りたい場合は、次の流れで進められます。
+
+1. このリポジトリを自分の GitHub アカウントに fork します。
+2. fork 先の `Actions` タブを開き、必要なら workflow を有効化します。
+3. `Android CI` workflow を開いて `Run workflow` を実行します。
+4. 実行完了後に `app-debug-apk` artifact をダウンロードします。
+5. その artifact に入っている APK を Android 端末へインストールします。
+
+fork 前提での主成果物は `app-debug-apk` です。`app-release-unsigned-apk` も出力されますが、これは未署名の参考ビルドなので、そのままではインストールできません。
+
 ## インストール
 
 - ローカル確認用には `app/build/outputs/apk/debug/app-debug.apk` をインストールしてください。
+- GitHub Actions で作る場合は、workflow 実行結果の `app-debug-apk` artifact をダウンロードしてインストールしてください。
 - `app-release-unsigned.apk` は未署名なので、そのままではインストールできません。配布用に使う場合は別途 signing config が必要です。
 
 ## 外部 APK の通知アクセス注意
