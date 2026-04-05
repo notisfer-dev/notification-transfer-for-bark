@@ -54,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -226,6 +227,8 @@ private fun SetupScreen(
     onRequestNotificationPermission: () -> Unit,
     onRefresh: () -> Unit,
 ) {
+    val uriHandler = LocalUriHandler.current
+
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -263,6 +266,27 @@ private fun SetupScreen(
         )
         OutlinedButton(onClick = onRefresh) {
             Text("Refresh status")
+        }
+        OutlinedCard {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text("Open source license", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "This app is open source and distributed under the MIT License. The full license text is available in this repository.",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                OutlinedButton(
+                    onClick = {
+                        uriHandler.openUri("https://github.com/notisfer-dev/notification-transfer-for-bark")
+                    },
+                ) {
+                    Text("View repository")
+                }
+            }
         }
     }
 }

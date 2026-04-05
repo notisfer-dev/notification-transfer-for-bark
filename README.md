@@ -147,3 +147,7 @@ The app requests:
 - Boot completed for app list refresh after restart
 
 Some SMS and call permissions are restricted on certain devices or installers. When that happens, the app falls back to forwarding notifications from the default SMS or phone app instead.
+
+## License
+
+This project is released under the MIT License. See [LICENSE](LICENSE).
