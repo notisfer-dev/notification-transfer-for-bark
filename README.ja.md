@@ -1,8 +1,8 @@
 [English](README.md) | 日本語
 
-# Bark Forwarder
+# Notification Transfer for Bark
 
-Bark へ通知、SMS、通話イベントを AES-256-GCM で暗号化して転送する Android アプリです。
+通知、SMS、通話イベントを AES-256-GCM で暗号化して iPhone の Bark へ転送する Android アプリです。
 
 ## スクリーンショット
 
@@ -119,6 +119,10 @@ iPhone 側の Bark アプリでは次の値をそろえてください。
 
 Android アプリ側の `Bark URL or Key` には `https://api.day.app/<your-key>` をそのまま貼り付けるか、デバイスキー単体を入力できます。送信形式は Bark の Node.js GCM サンプルと同じ `ciphertext` + `iv` です。上の QRコードを読み取ると App Store で Bark を開けます。
 
+Bark の暗号化設定画面を開く場所は、下の画像の矢印の位置です。
+
+<img src="docs/assets/bark-encryption-settings-arrow.png" alt="Bark encryption settings entry point with arrow" width="300">
+
 Bark は Finb による別アプリです。このワークフローを実現できる優れた iOS アプリを開発・公開してくれている Bark と開発者の Finb に感謝します。
 
 ## アイコンと画像
@@ -147,6 +151,10 @@ Bark は Finb による別アプリです。このワークフローを実現で
 - 再起動後にアプリ一覧を更新するための `BOOT_COMPLETED`
 
 端末や導入方法によっては SMS / 通話の直接権限が制限されることがあります。その場合は、既定の SMS アプリや電話アプリの通知をフォールバックとして転送します。
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=notisfer-dev/notification-transfer-for-bark&type=Date)](https://www.star-history.com/#notisfer-dev/notification-transfer-for-bark&Date)
 
 ## ライセンス
 

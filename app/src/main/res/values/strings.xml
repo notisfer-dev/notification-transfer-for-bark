@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Bark Forwarder</string>
-    <string name="notification_listener_label">Bark notification forwarding</string>
+    <string name="app_name">Notification Transfer for Bark</string>
+    <string name="notification_listener_label">Notification Transfer for Bark</string>
 </resources>
-

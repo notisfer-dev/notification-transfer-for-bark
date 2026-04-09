@@ -1,8 +1,8 @@
 English | [日本語](README.ja.md)
 
-# Bark Forwarder
+# Notification Transfer for Bark
 
-Android app that forwards notifications, SMS, and call events to Bark with AES-256-GCM encrypted payloads.
+Android app that forwards notifications, SMS, and call events to Bark on your iPhone with AES-256-GCM encrypted payloads.
 
 ## Screenshots
 
@@ -119,6 +119,10 @@ Configure the Bark iPhone app with:
 
 The Android app sends `ciphertext` and `iv` in the same format as Bark's Node.js GCM example. You can paste `https://api.day.app/<your-key>` directly into the Android app, or paste the key by itself. You can also scan the QR code above to open Bark on the App Store.
 
+If you are looking for the encryption settings screen in Bark, tap `Encryption Settings` as shown below.
+
+<img src="docs/assets/bark-encryption-settings-arrow.png" alt="Bark encryption settings entry point with arrow" width="300">
+
 Bark is a separate iOS app by Finb. Special thanks to Bark and its developer Finb for building and sharing the iOS app that makes this workflow possible.
 
 ## Icons and Images
@@ -147,6 +151,10 @@ The app requests:
 - Boot completed for app list refresh after restart
 
 Some SMS and call permissions are restricted on certain devices or installers. When that happens, the app falls back to forwarding notifications from the default SMS or phone app instead.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=notisfer-dev/notification-transfer-for-bark&type=Date)](https://www.star-history.com/#notisfer-dev/notification-transfer-for-bark&Date)
 
 ## License
 
