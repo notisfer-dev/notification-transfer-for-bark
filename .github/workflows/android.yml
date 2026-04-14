@@ -8,6 +8,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build APK artifacts
@@ -34,6 +37,19 @@ jobs:
       - name: Build installable debug APK
         run: gradle assembleDebug
 
+      - name: Prepare timestamped debug APK
+        id: timestamped_apk
+        run: |
+          mkdir -p dist
+          timestamp=$(TZ=Asia/Tokyo date +"%Y%m%d-%H%M")
+          apk_name="${timestamp}-Notification-Transfer-for-Bark.apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "dist/${apk_name}"
+          echo "timestamp=${timestamp}" >> "$GITHUB_OUTPUT"
+          echo "apk_name=${apk_name}" >> "$GITHUB_OUTPUT"
+          echo "apk_path=dist/${apk_name}" >> "$GITHUB_OUTPUT"
+          echo "tag_name=apk-${timestamp}-run${GITHUB_RUN_NUMBER}-a${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+          echo "release_title=Notification Transfer for Bark ${timestamp}" >> "$GITHUB_OUTPUT"
+
       - name: Build unsigned release APK
         run: gradle assembleRelease
 
@@ -41,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: dist/*.apk
 
       - name: Upload unsigned release APK artifact
         uses: actions/upload-artifact@v4
@@ -49,13 +65,41 @@ jobs:
           name: app-release-unsigned-apk
           path: app/build/outputs/apk/release/*.apk
 
+      - name: Publish timestamped debug APK prerelease
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > release-notes.txt <<EOF
+          Automated debug APK build.
+
+          - Branch: ${GITHUB_REF_NAME}
+          - Commit: ${GITHUB_SHA}
+          - APK: ${{ steps.timestamped_apk.outputs.apk_name }}
+          EOF
+          gh release create "${{ steps.timestamped_apk.outputs.tag_name }}" "${{ steps.timestamped_apk.outputs.apk_path }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "${{ steps.timestamped_apk.outputs.release_title }}" \
+            --notes-file release-notes.txt \
+            --prerelease
+
       - name: Write APK artifact summary
         run: |
           {
             echo "## APK artifacts"
             echo
-            echo "- \`app-debug-apk\`: installable debug APK for local testing and fork-based builds."
+            echo "- \`app-debug-apk\`: installable debug APK artifact with a timestamped filename."
             echo "- \`app-release-unsigned-apk\`: unsigned release APK reference artifact. Add your own signing config before using it for distribution."
+            echo
+            echo "Timestamped APK name format: \`${{ steps.timestamped_apk.outputs.apk_name }}\`"
+            if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
+              echo
+              echo "A GitHub Pre-release will be created automatically on \`main\` pushes with tag \`${{ steps.timestamped_apk.outputs.tag_name }}\`."
+            else
+              echo
+              echo "GitHub Pre-releases are created only for pushes to \`main\`."
+            fi
             echo
             echo "Recommended fork workflow: fork this repository, enable Actions in your fork, run \`Android CI\` with \`Run workflow\`, then download \`app-debug-apk\` from the workflow artifacts."
           } >> "$GITHUB_STEP_SUMMARY"

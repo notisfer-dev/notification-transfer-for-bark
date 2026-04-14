@@ -59,12 +59,15 @@ gradle assembleDebug
 4. 実行完了後に `app-debug-apk` artifact をダウンロードします。
 5. その artifact に入っている APK を Android 端末へインストールします。
 
-fork 前提での主成果物は `app-debug-apk` です。`app-release-unsigned-apk` も出力されますが、これは未署名の参考ビルドなので、そのままではインストールできません。
+fork 前提での主成果物は `app-debug-apk` です。artifact の中には `YYYYMMDD-HHMM-Notification-Transfer-for-Bark.apk` 形式の timestamp 付き debug APK が入ります。`app-release-unsigned-apk` も出力されますが、これは未署名の参考ビルドなので、そのままではインストールできません。
+
+`main` に push した場合は、GitHub Actions が同じ timestamp 付き debug APK を添付した `Pre-release` も自動作成します。自動 tag 形式は `apk-YYYYMMDD-HHMM-run<RUN_NUMBER>-a<RUN_ATTEMPT>` です。
 
 ## インストール
 
 - ローカル確認用には `app/build/outputs/apk/debug/app-debug.apk` をインストールしてください。
 - GitHub Actions で作る場合は、workflow 実行結果の `app-debug-apk` artifact をダウンロードしてインストールしてください。
+- `main` 向けの自動 GitHub `Pre-release` を使う場合は、そこに添付された timestamp 付き debug APK をインストールしてください。
 - `app-release-unsigned.apk` は未署名なので、そのままではインストールできません。配布用に使う場合は別途 signing config が必要です。
 
 ## 外部 APK の通知アクセス注意
