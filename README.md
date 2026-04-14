@@ -154,7 +154,7 @@ Some SMS and call permissions are restricted on certain devices or installers. W
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=notisfer-dev/notification-transfer-for-bark&type=Date)](https://www.star-history.com/#notisfer-dev/notification-transfer-for-bark&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=notisfer-dev%2Fnotification-transfer-for-bark&type=Date)](https://www.star-history.com/?repos=notisfer-dev%2Fnotification-transfer-for-bark&type=date&legend=top-left)
 
 ## License
 
