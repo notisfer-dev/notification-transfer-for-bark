@@ -9,6 +9,8 @@ import dev.yakitori.barkforwarder.data.model.NotificationFilterConfig
 import dev.yakitori.barkforwarder.data.prefs.SettingsRepository
 import dev.yakitori.barkforwarder.data.repo.AppRuleRepository
 import dev.yakitori.barkforwarder.data.repo.DedupeRepository
+import dev.yakitori.barkforwarder.data.repo.NotificationHistoryRepository
+import dev.yakitori.barkforwarder.data.repo.NotificationRuleRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
@@ -18,6 +20,8 @@ import kotlinx.serialization.json.Json
 class ForwardingEngine(
     private val settingsRepository: SettingsRepository,
     private val appRuleRepository: AppRuleRepository,
+    private val notificationRuleRepository: NotificationRuleRepository,
+    private val notificationHistoryRepository: NotificationHistoryRepository,
     private val dedupeRepository: DedupeRepository,
     private val playIconResolver: PlayIconResolver,
     private val barkPushClient: BarkPushClient,
@@ -38,6 +42,11 @@ class ForwardingEngine(
             appRuleRepository.ensureRule(packageName, event.sourceLabel)
             val rule = appRuleRepository.getRule(packageName)
             if (rule?.excluded == true) return
+        }
+
+        if (event.type == EventType.NOTIFICATION) {
+            val matchingRule = notificationRuleRepository.findMatchingRule(event)
+            if (matchingRule != null) return
         }
 
         val dedupeWindow = dedupeWindowSeconds(event, filterConfig)
@@ -65,6 +74,11 @@ class ForwardingEngine(
             deviceKey = barkConfig.deviceKey,
             ciphertext = ciphertext,
             iv = iv,
+        )
+        notificationHistoryRepository.recordForwardedNotification(
+            event = event,
+            renderedTitle = payload.title,
+            renderedBody = payload.body,
         )
     }
 

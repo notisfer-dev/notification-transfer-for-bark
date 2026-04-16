@@ -7,6 +7,8 @@ import dev.yakitori.barkforwarder.data.prefs.SettingsRepository
 import dev.yakitori.barkforwarder.data.repo.AppRuleRepository
 import dev.yakitori.barkforwarder.data.repo.DedupeRepository
 import dev.yakitori.barkforwarder.data.repo.InstalledAppRepository
+import dev.yakitori.barkforwarder.data.repo.NotificationHistoryRepository
+import dev.yakitori.barkforwarder.data.repo.NotificationRuleRepository
 import dev.yakitori.barkforwarder.domain.BarkPushClient
 import dev.yakitori.barkforwarder.domain.ForwardingEngine
 import dev.yakitori.barkforwarder.domain.PlayIconResolver
@@ -35,16 +37,19 @@ class AppContainer(context: Context) {
     }
     val installedAppRepository by lazy { InstalledAppRepository(appContext, appRuleRepository) }
     val dedupeRepository by lazy { DedupeRepository(database.dedupeDao()) }
+    val notificationHistoryRepository by lazy { NotificationHistoryRepository(database.notificationHistoryDao()) }
+    val notificationRuleRepository by lazy { NotificationRuleRepository(database.notificationRuleDao()) }
     val playIconResolver by lazy { PlayIconResolver(httpClient, appRuleRepository) }
     val barkPushClient by lazy { BarkPushClient(httpClient) }
     val forwardingEngine by lazy {
         ForwardingEngine(
             settingsRepository = settingsRepository,
             appRuleRepository = appRuleRepository,
+            notificationRuleRepository = notificationRuleRepository,
+            notificationHistoryRepository = notificationHistoryRepository,
             dedupeRepository = dedupeRepository,
             playIconResolver = playIconResolver,
             barkPushClient = barkPushClient,
         )
     }
 }
-

@@ -7,7 +7,9 @@ import dev.yakitori.barkforwarder.BarkBridgeApp
 import dev.yakitori.barkforwarder.data.model.AppRule
 import dev.yakitori.barkforwarder.data.model.BarkConfig
 import dev.yakitori.barkforwarder.data.model.CryptoConfig
+import dev.yakitori.barkforwarder.data.model.NotificationHistory
 import dev.yakitori.barkforwarder.data.model.NotificationFilterConfig
+import dev.yakitori.barkforwarder.data.model.NotificationRule
 import dev.yakitori.barkforwarder.domain.AppPermissions
 import dev.yakitori.barkforwarder.domain.BarkSettingsValidator
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,10 +18,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val container = BarkBridgeApp.from(application).container
+    private val selfPackageName = application.packageName
     private val _searchQuery = MutableStateFlow("")
+    private val _historySection = MutableStateFlow(HistorySection.SentNotifications)
 
     val barkConfig = container.settingsRepository.barkConfig
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), BarkConfig())
@@ -27,8 +32,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CryptoConfig())
     val notificationFilterConfig = container.settingsRepository.notificationFilterConfig
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), NotificationFilterConfig())
+    val notificationHistory = container.notificationHistoryRepository.observeHistory()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+    val notificationRules = container.notificationRuleRepository.observeRules()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     val searchQuery: StateFlow<String> = _searchQuery
+    val historySection: StateFlow<HistorySection> = _historySection
 
     private val _permissionSnapshot = MutableStateFlow(readPermissionSnapshot())
     val permissionSnapshot: StateFlow<PermissionSnapshot> = _permissionSnapshot
@@ -39,10 +49,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         container.installedAppRepository.observeRules(),
         _searchQuery,
     ) { rules, query ->
-        if (query.isBlank()) rules
-        else rules.filter {
+        val filtered = if (query.isBlank()) rules else rules.filter {
             it.appLabel.contains(query, ignoreCase = true) || it.packageName.contains(query, ignoreCase = true)
         }
+        sortAppRulesForAppsScreen(filtered, selfPackageName)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun refreshInstalledApps() {
@@ -99,6 +109,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _searchQuery.value = query
     }
 
+    fun setHistorySection(section: HistorySection) {
+        _historySection.value = section
+    }
+
     fun setAppExcluded(packageName: String, excluded: Boolean) {
         viewModelScope.launch {
             container.appRuleRepository.updateExcluded(packageName, excluded)
@@ -108,6 +122,49 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun updateManualIconUrl(packageName: String, manualUrl: String?) {
         viewModelScope.launch {
             container.appRuleRepository.updateManualIconUrl(packageName, manualUrl)
+        }
+    }
+
+    fun createNotificationRule(
+        history: NotificationHistory,
+        appNamePattern: String,
+        titlePattern: String,
+        bodyPattern: String,
+    ) {
+        viewModelScope.launch {
+            runCatching {
+                container.notificationRuleRepository.saveRule(
+                    packageName = history.packageName,
+                    packageLabelAtCreation = history.sourceLabel,
+                    appNamePattern = appNamePattern,
+                    titlePattern = titlePattern,
+                    bodyPattern = bodyPattern,
+                )
+            }
+        }
+    }
+
+    fun updateNotificationRule(
+        rule: NotificationRule,
+        appNamePattern: String,
+        titlePattern: String,
+        bodyPattern: String,
+    ) {
+        viewModelScope.launch {
+            runCatching {
+                container.notificationRuleRepository.updateRule(
+                    existing = rule,
+                    appNamePattern = appNamePattern,
+                    titlePattern = titlePattern,
+                    bodyPattern = bodyPattern,
+                )
+            }
+        }
+    }
+
+    fun deleteNotificationRule(ruleId: String) {
+        viewModelScope.launch {
+            container.notificationRuleRepository.deleteRule(ruleId)
         }
     }
 
@@ -132,5 +189,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val smsPermissionsGranted: Boolean,
         val callPermissionsGranted: Boolean,
         val postNotificationsGranted: Boolean,
+    )
+
+    enum class HistorySection {
+        SentNotifications,
+        BlockedRules,
+    }
+}
+
+internal fun sortAppRulesForAppsScreen(
+    rules: List<AppRule>,
+    selfPackageName: String,
+): List<AppRule> {
+    return rules.sortedWith(
+        compareBy<AppRule>(
+            { if (it.excluded && it.packageName != selfPackageName) 0 else 1 },
+            { it.appLabel.lowercase(Locale.ROOT) },
+            { it.packageName.lowercase(Locale.ROOT) },
+        ),
     )
 }

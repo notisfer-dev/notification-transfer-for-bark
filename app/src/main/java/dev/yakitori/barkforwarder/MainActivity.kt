@@ -27,9 +27,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
@@ -45,6 +47,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -59,9 +62,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.yakitori.barkforwarder.data.model.AppRule
+import dev.yakitori.barkforwarder.data.model.NotificationHistory
+import dev.yakitori.barkforwarder.data.model.NotificationRule
 import dev.yakitori.barkforwarder.domain.BarkEndpointParser
 import dev.yakitori.barkforwarder.ui.MainViewModel
 import dev.yakitori.barkforwarder.ui.theme.BarkForwarderTheme
+import java.text.DateFormat
 
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
@@ -82,6 +88,7 @@ private enum class Destination(val label: String) {
     Bark("Bark"),
     Filters("Transfer"),
     Apps("Apps"),
+    History("History"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,7 +98,10 @@ private fun BarkForwarderApp(viewModel: MainViewModel) {
     val cryptoConfig by viewModel.cryptoConfig.collectAsStateWithLifecycle()
     val filterConfig by viewModel.notificationFilterConfig.collectAsStateWithLifecycle()
     val appRules by viewModel.filteredRules.collectAsStateWithLifecycle()
+    val notificationHistory by viewModel.notificationHistory.collectAsStateWithLifecycle()
+    val notificationRules by viewModel.notificationRules.collectAsStateWithLifecycle()
     val query by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val historySection by viewModel.historySection.collectAsStateWithLifecycle()
     val barkSettingsMessage by viewModel.barkSettingsMessage.collectAsStateWithLifecycle()
     var destination by rememberSaveable { mutableStateOf(Destination.Setup) }
     val context = LocalContext.current
@@ -139,6 +149,12 @@ private fun BarkForwarderApp(viewModel: MainViewModel) {
                     onClick = { destination = Destination.Apps },
                     icon = { Icon(Icons.Outlined.Apps, contentDescription = null) },
                     label = { Text(Destination.Apps.label) },
+                )
+                NavigationBarItem(
+                    selected = destination == Destination.History,
+                    onClick = { destination = Destination.History },
+                    icon = { Icon(Icons.Outlined.History, contentDescription = null) },
+                    label = { Text(Destination.History.label) },
                 )
             }
         },
@@ -212,6 +228,19 @@ private fun BarkForwarderApp(viewModel: MainViewModel) {
                 onRefresh = viewModel::refreshInstalledApps,
                 onExcludedChanged = viewModel::setAppExcluded,
                 onManualIconSave = viewModel::updateManualIconUrl,
+            )
+
+            Destination.History -> HistoryScreen(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize(),
+                section = historySection,
+                history = notificationHistory,
+                rules = notificationRules,
+                onSectionChanged = viewModel::setHistorySection,
+                onCreateRule = viewModel::createNotificationRule,
+                onUpdateRule = viewModel::updateNotificationRule,
+                onDeleteRule = viewModel::deleteNotificationRule,
             )
         }
     }
@@ -565,6 +594,360 @@ private fun AppRuleRow(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun HistoryScreen(
+    modifier: Modifier,
+    section: MainViewModel.HistorySection,
+    history: List<NotificationHistory>,
+    rules: List<NotificationRule>,
+    onSectionChanged: (MainViewModel.HistorySection) -> Unit,
+    onCreateRule: (NotificationHistory, String, String, String) -> Unit,
+    onUpdateRule: (NotificationRule, String, String, String) -> Unit,
+    onDeleteRule: (String) -> Unit,
+) {
+    var editorState by androidx.compose.runtime.remember { mutableStateOf<RuleEditorState?>(null) }
+
+    Column(
+        modifier = modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text("History", style = MaterialTheme.typography.headlineSmall)
+        Text(
+            "Save blocked notification rules from sent notification history. Only the same app package is affected, and any non-empty field must be contained in future notifications.",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            HistorySectionButton(
+                label = "Sent notifications",
+                selected = section == MainViewModel.HistorySection.SentNotifications,
+                onClick = { onSectionChanged(MainViewModel.HistorySection.SentNotifications) },
+                modifier = Modifier.weight(1f),
+            )
+            HistorySectionButton(
+                label = "Blocked rules",
+                selected = section == MainViewModel.HistorySection.BlockedRules,
+                onClick = { onSectionChanged(MainViewModel.HistorySection.BlockedRules) },
+                modifier = Modifier.weight(1f),
+            )
+        }
+
+        when (section) {
+            MainViewModel.HistorySection.SentNotifications -> {
+                if (history.isEmpty()) {
+                    EmptyStateCard(
+                        title = "No sent notifications yet",
+                        body = "Successful forwarded app notifications will appear here, and you can turn them into blocked rules.",
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        items(history, key = { it.id }) { item ->
+                            NotificationHistoryRow(
+                                item = item,
+                                onClick = { editorState = RuleEditorState.fromHistory(item) },
+                            )
+                        }
+                    }
+                }
+            }
+
+            MainViewModel.HistorySection.BlockedRules -> {
+                if (rules.isEmpty()) {
+                    EmptyStateCard(
+                        title = "No blocked rules yet",
+                        body = "Open an item in Sent notifications to create a rule that blocks similar notifications from the same app.",
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        items(rules, key = { it.id }) { rule ->
+                            NotificationRuleRow(
+                                rule = rule,
+                                onEdit = { editorState = RuleEditorState.fromRule(rule) },
+                                onDelete = { onDeleteRule(rule.id) },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    editorState?.let { state ->
+        NotificationRuleEditorDialog(
+            state = state,
+            onDismiss = { editorState = null },
+            onSave = { appNamePattern, titlePattern, bodyPattern ->
+                state.existingRule?.let { existing ->
+                    onUpdateRule(existing, appNamePattern, titlePattern, bodyPattern)
+                } ?: state.historyItem?.let { historyItem ->
+                    onCreateRule(historyItem, appNamePattern, titlePattern, bodyPattern)
+                }
+                editorState = null
+            },
+        )
+    }
+}
+
+@Composable
+private fun HistorySectionButton(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (selected) {
+        Button(modifier = modifier, onClick = onClick) {
+            Text(label)
+        }
+    } else {
+        OutlinedButton(modifier = modifier, onClick = onClick) {
+            Text(label)
+        }
+    }
+}
+
+@Composable
+private fun EmptyStateCard(
+    title: String,
+    body: String,
+) {
+    OutlinedCard {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Text(body, style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+@Composable
+private fun NotificationHistoryRow(
+    item: NotificationHistory,
+    onClick: () -> Unit,
+) {
+    OutlinedCard(
+        modifier = Modifier.clickable(onClick = onClick),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(item.sourceLabel, style = MaterialTheme.typography.titleMedium)
+                Text(formatTimestamp(item.forwardedAt), style = MaterialTheme.typography.bodySmall)
+            }
+            Text(
+                buildHistoryPreview(item),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Text("Tap to block similar notifications", style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+@Composable
+private fun NotificationRuleRow(
+    rule: NotificationRule,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    OutlinedCard(
+        modifier = Modifier.clickable(onClick = onEdit),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(rule.packageLabelAtCreation, style = MaterialTheme.typography.titleMedium)
+            Text(rule.packageName, style = MaterialTheme.typography.bodySmall)
+            Text(rule.summary(), style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = onEdit) {
+                    Text("Edit")
+                }
+                OutlinedButton(onClick = onDelete) {
+                    Text("Delete")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NotificationRuleEditorDialog(
+    state: RuleEditorState,
+    onDismiss: () -> Unit,
+    onSave: (String, String, String) -> Unit,
+) {
+    var appNamePattern by rememberSaveable(state.dialogKey, state.initialAppNamePattern) {
+        mutableStateOf(state.initialAppNamePattern)
+    }
+    var titlePattern by rememberSaveable(state.dialogKey, state.initialTitlePattern) {
+        mutableStateOf(state.initialTitlePattern)
+    }
+    var bodyPattern by rememberSaveable(state.dialogKey, state.initialBodyPattern) {
+        mutableStateOf(state.initialBodyPattern)
+    }
+    val canSave = titlePattern.isNotBlank() || bodyPattern.isNotBlank()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(state.dialogTitle) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedCard {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text("Bark preview", style = MaterialTheme.typography.labelLarge)
+                        Text(state.renderedTitle, style = MaterialTheme.typography.titleMedium)
+                        Text(state.renderedBody, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+                Text(
+                    "Only notifications from the same app package will be blocked. Any non-empty field below must be contained in future notifications, so you can delete the changing parts before saving.",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Text(
+                    "Package: ${state.packageName}",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = appNamePattern,
+                    onValueChange = { appNamePattern = it },
+                    label = { Text("App name pattern") },
+                    singleLine = true,
+                )
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = titlePattern,
+                    onValueChange = { titlePattern = it },
+                    label = { Text("Title pattern") },
+                    singleLine = false,
+                )
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = bodyPattern,
+                    onValueChange = { bodyPattern = it },
+                    label = { Text("Body pattern") },
+                    singleLine = false,
+                )
+                if (!canSave) {
+                    Text(
+                        "Title or body is required.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                enabled = canSave,
+                onClick = { onSave(appNamePattern, titlePattern, bodyPattern) },
+            ) {
+                Text(if (state.existingRule == null) "Save rule" else "Update rule")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+    )
+}
+
+private fun buildHistoryPreview(item: NotificationHistory): String {
+    return listOf(item.title, item.body)
+        .filter { it.isNotBlank() }
+        .joinToString(" - ")
+        .ifBlank { item.renderedBody.ifBlank { "Notification received" } }
+}
+
+private fun formatTimestamp(timestamp: Long): String {
+    return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(timestamp)
+}
+
+private fun NotificationRule.summary(): String {
+    return buildList {
+        appNamePattern?.takeIf { it.isNotBlank() }?.let { add("App name contains \"$it\"") }
+        titlePattern?.takeIf { it.isNotBlank() }?.let { add("Title contains \"$it\"") }
+        bodyPattern?.takeIf { it.isNotBlank() }?.let { add("Body contains \"$it\"") }
+    }.joinToString(" / ")
+}
+
+private data class RuleEditorState(
+    val dialogKey: String,
+    val dialogTitle: String,
+    val packageName: String,
+    val renderedTitle: String,
+    val renderedBody: String,
+    val initialAppNamePattern: String,
+    val initialTitlePattern: String,
+    val initialBodyPattern: String,
+    val historyItem: NotificationHistory? = null,
+    val existingRule: NotificationRule? = null,
+) {
+    companion object {
+        fun fromHistory(item: NotificationHistory): RuleEditorState {
+            return RuleEditorState(
+                dialogKey = "history-${item.id}",
+                dialogTitle = "Block similar notifications",
+                packageName = item.packageName,
+                renderedTitle = item.renderedTitle,
+                renderedBody = item.renderedBody,
+                initialAppNamePattern = item.sourceLabel,
+                initialTitlePattern = item.title,
+                initialBodyPattern = item.body,
+                historyItem = item,
+            )
+        }
+
+        fun fromRule(rule: NotificationRule): RuleEditorState {
+            val fallbackPreview = rule.summary().ifBlank { "Blocked rule for ${rule.packageLabelAtCreation}" }
+            return RuleEditorState(
+                dialogKey = "rule-${rule.id}",
+                dialogTitle = "Edit blocked rule",
+                packageName = rule.packageName,
+                renderedTitle = rule.packageLabelAtCreation,
+                renderedBody = fallbackPreview,
+                initialAppNamePattern = rule.appNamePattern.orEmpty(),
+                initialTitlePattern = rule.titlePattern.orEmpty(),
+                initialBodyPattern = rule.bodyPattern.orEmpty(),
+                existingRule = rule,
+            )
         }
     }
 }
